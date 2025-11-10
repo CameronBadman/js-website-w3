@@ -1,3 +1,6 @@
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
 export default function Exercise({ exercise, onUpdateCode, onRunCode, onClearOutput, onReset }) {
   const handleKeyDown = (e) => {
     if (e.key === 'Tab') {
@@ -17,16 +20,45 @@ export default function Exercise({ exercise, onUpdateCode, onRunCode, onClearOut
     }
   };
 
+  const customStyle = {
+    margin: 0,
+    padding: '1.5rem',
+    background: 'transparent',
+    fontSize: '1rem',
+    lineHeight: 1.7,
+    tabSize: 4,
+  };
+
   return (
     <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-xl overflow-hidden shadow-2xl hover:shadow-slate-700/50 transition-all duration-300">
       <div className="bg-gradient-to-r from-slate-800 via-slate-700 to-slate-800 px-6 py-6 border-b border-slate-600">
         <div className="flex justify-between items-start gap-6 flex-wrap">
           <div className="flex-1 min-w-[300px]">
-            <h2 className="text-2xl font-bold mb-3 bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-              {exercise.title}
-            </h2>
-            <p className="text-slate-300 leading-relaxed text-base">{exercise.question}</p>
+            <div className="flex items-center gap-3 mb-3">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                {exercise.title}
+              </h2>
+              {exercise.isCorrect === true && (
+                <span className="text-2xl">✅</span>
+              )}
+              {exercise.isCorrect === false && (
+                <span className="text-2xl">❌</span>
+              )}
+            </div>
+            
+            {exercise.objective && (
+              <div className="mb-4 p-4 bg-slate-900/50 border border-slate-600 rounded-lg">
+                <div className="text-xs font-bold uppercase tracking-widest text-cyan-400 mb-2">📋 Objective</div>
+                <p className="text-slate-200 leading-relaxed text-base">{exercise.objective}</p>
+              </div>
+            )}
+            
+            <div className="p-4 bg-blue-950/30 border border-blue-800/50 rounded-lg">
+              <div className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">💡 Task</div>
+              <p className="text-slate-300 leading-relaxed text-base">{exercise.question}</p>
+            </div>
           </div>
+          
           <div className="flex gap-3 flex-shrink-0">
             <button
               onClick={() => onReset(exercise.id)}
@@ -51,18 +83,30 @@ export default function Exercise({ exercise, onUpdateCode, onRunCode, onClearOut
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 min-h-[400px]">
-        <div className="flex flex-col border-r border-slate-700">
+        <div className="flex flex-col border-r border-slate-700 relative">
           <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-4 py-3 border-b border-slate-600">
             <span className="text-xs font-bold uppercase tracking-widest text-cyan-400">📝 Your Code</span>
           </div>
-          <textarea
-            className="flex-1 bg-slate-900 text-slate-100 font-mono text-base p-6 border-none outline-none resize-none min-h-[400px] focus:bg-slate-900/80 transition-colors"
-            value={exercise.code}
-            onChange={(e) => onUpdateCode(exercise.id, e.target.value)}
-            onKeyDown={handleKeyDown}
-            spellCheck={false}
-            style={{ tabSize: 4, lineHeight: 1.7 }}
-          />
+          
+          <div className="relative flex-1">
+            <div className="absolute inset-0 bg-slate-900 overflow-auto pointer-events-none">
+              <SyntaxHighlighter
+                language="javascript"
+                style={vscDarkPlus}
+                customStyle={customStyle}
+              >
+                {exercise.code}
+              </SyntaxHighlighter>
+            </div>
+            <textarea
+              className="absolute inset-0 bg-transparent text-transparent caret-white font-mono text-base p-6 border-none outline-none resize-none focus:bg-slate-900/5 transition-colors selection:bg-blue-500/30"
+              value={exercise.code}
+              onChange={(e) => onUpdateCode(exercise.id, e.target.value)}
+              onKeyDown={handleKeyDown}
+              spellCheck={false}
+              style={{ tabSize: 4, lineHeight: 1.7 }}
+            />
+          </div>
         </div>
 
         <div className="flex flex-col bg-slate-900">
