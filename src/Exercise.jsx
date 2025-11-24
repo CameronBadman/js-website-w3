@@ -83,7 +83,6 @@ export default function Exercise({ exercise, onUpdateCode, onRunCode, onClearOut
                 wordWrap: 'on',
                 tabSize: 2,
                 automaticLayout: true,
-                padding: { top: 16, bottom: 16 },
                 scrollbar: {
                   vertical: 'auto',
                   horizontal: 'auto',
