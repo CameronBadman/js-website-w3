@@ -1,32 +1,11 @@
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import Editor from '@monaco-editor/react';
 
 export default function Exercise({ exercise, onUpdateCode, onRunCode, onClearOutput, onReset }) {
-  const handleKeyDown = (e) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      const start = e.target.selectionStart;
-      const end = e.target.selectionEnd;
-      const newCode = exercise.code.substring(0, start) + '    ' + exercise.code.substring(end);
-      onUpdateCode(exercise.id, newCode);
-      setTimeout(() => {
-        e.target.selectionStart = e.target.selectionEnd = start + 4;
-      }, 0);
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      e.preventDefault();
+  const handleEditorMount = (editor, monaco) => {
+    // Add Ctrl+Enter keybinding to run code
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
       onRunCode(exercise.id);
-    }
-  };
-
-  const customStyle = {
-    margin: 0,
-    padding: '1.5rem',
-    background: 'transparent',
-    fontSize: '1rem',
-    lineHeight: 1.7,
-    tabSize: 4,
+    });
   };
 
   return (
@@ -45,20 +24,20 @@ export default function Exercise({ exercise, onUpdateCode, onRunCode, onClearOut
                 <span className="text-2xl">❌</span>
               )}
             </div>
-            
+
             {exercise.objective && (
               <div className="mb-4 p-4 bg-slate-900/50 border border-slate-600 rounded-lg">
                 <div className="text-xs font-bold uppercase tracking-widest text-cyan-400 mb-2">📋 Objective</div>
                 <p className="text-slate-200 leading-relaxed text-base">{exercise.objective}</p>
               </div>
             )}
-            
+
             <div className="p-4 bg-blue-950/30 border border-blue-800/50 rounded-lg">
               <div className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-2">💡 Task</div>
               <p className="text-slate-300 leading-relaxed text-base">{exercise.question}</p>
             </div>
           </div>
-          
+
           <div className="flex gap-3 flex-shrink-0">
             <button
               onClick={() => onReset(exercise.id)}
@@ -83,28 +62,32 @@ export default function Exercise({ exercise, onUpdateCode, onRunCode, onClearOut
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 min-h-[400px]">
-        <div className="flex flex-col border-r border-slate-700 relative">
+        <div className="flex flex-col border-r border-slate-700">
           <div className="bg-gradient-to-r from-slate-800 to-slate-700 px-4 py-3 border-b border-slate-600">
             <span className="text-xs font-bold uppercase tracking-widest text-cyan-400">📝 Your Code</span>
           </div>
-          
-          <div className="relative flex-1">
-            <div className="absolute inset-0 bg-slate-900 overflow-auto pointer-events-none z-0">
-              <SyntaxHighlighter
-                language="javascript"
-                style={vscDarkPlus}
-                customStyle={customStyle}
-              >
-                {exercise.code || ''}
-              </SyntaxHighlighter>
-            </div>
-            <textarea
-              className="absolute inset-0 bg-transparent text-transparent caret-white font-mono text-base p-6 border-none outline-none resize-none focus:bg-slate-900/5 transition-colors selection:bg-blue-500/30 z-10"
+
+          <div className="flex-1 min-h-[350px]">
+            <Editor
+              height="100%"
+              defaultLanguage="javascript"
               value={exercise.code || ''}
-              onChange={(e) => onUpdateCode(exercise.id, e.target.value)}
-              onKeyDown={handleKeyDown}
-              spellCheck={false}
-              style={{ tabSize: 4, lineHeight: 1.7 }}
+              onChange={(value) => onUpdateCode(exercise.id, value || '')}
+              onMount={handleEditorMount}
+              theme="vs-dark"
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                lineNumbers: 'on',
+                scrollBeyondLastLine: false,
+                wordWrap: 'on',
+                tabSize: 2,
+                automaticLayout: true,
+                scrollbar: {
+                  vertical: 'auto',
+                  horizontal: 'auto',
+                },
+              }}
             />
           </div>
         </div>
@@ -113,7 +96,7 @@ export default function Exercise({ exercise, onUpdateCode, onRunCode, onClearOut
           <div className="bg-gradient-to-r from-slate-700 to-slate-800 px-4 py-3 border-b border-slate-600">
             <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">💻 Console Output</span>
           </div>
-          <div className="flex-1 p-6 overflow-y-auto font-mono text-sm min-h-[400px] space-y-2">
+          <div className="flex-1 p-6 overflow-y-auto font-mono text-sm min-h-[350px] space-y-2">
             {exercise.output.length === 0 ? (
               <div className="text-slate-500 italic text-center mt-8">
                 <div className="text-4xl mb-3">🚀</div>
