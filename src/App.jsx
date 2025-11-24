@@ -577,7 +577,23 @@ function App() {
   useEffect(() => {
     const savedExercises = localStorage.getItem('studentExercises');
     if (savedExercises) {
-      setExercises(JSON.parse(savedExercises));
+      const saved = JSON.parse(savedExercises);
+      // Merge saved data with current EXERCISES to handle new/removed exercises
+      const merged = EXERCISES.map(ex => {
+        const savedEx = saved.find(s => s.id === ex.id);
+        if (savedEx) {
+          // Preserve user's code and progress, but update exercise definition
+          return {
+            ...ex,
+            code: savedEx.code || ex.starterCode,
+            output: savedEx.output || [],
+            isCorrect: savedEx.isCorrect ?? null
+          };
+        }
+        // New exercise not in saved data
+        return { ...ex, code: ex.starterCode, output: [], isCorrect: null };
+      });
+      setExercises(merged);
     } else {
       setExercises(EXERCISES.map(ex => ({ ...ex, code: ex.starterCode, output: [], isCorrect: null })));
     }

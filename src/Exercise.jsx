@@ -89,18 +89,18 @@ export default function Exercise({ exercise, onUpdateCode, onRunCode, onClearOut
           </div>
           
           <div className="relative flex-1">
-            <div className="absolute inset-0 bg-slate-900 overflow-auto pointer-events-none">
+            <div className="absolute inset-0 bg-slate-900 overflow-auto pointer-events-none z-0">
               <SyntaxHighlighter
                 language="javascript"
                 style={vscDarkPlus}
                 customStyle={customStyle}
               >
-                {exercise.code}
+                {exercise.code || ''}
               </SyntaxHighlighter>
             </div>
             <textarea
-              className="absolute inset-0 bg-transparent text-transparent caret-white font-mono text-base p-6 border-none outline-none resize-none focus:bg-slate-900/5 transition-colors selection:bg-blue-500/30"
-              value={exercise.code}
+              className="absolute inset-0 bg-transparent text-transparent caret-white font-mono text-base p-6 border-none outline-none resize-none focus:bg-slate-900/5 transition-colors selection:bg-blue-500/30 z-10"
+              value={exercise.code || ''}
               onChange={(e) => onUpdateCode(exercise.id, e.target.value)}
               onKeyDown={handleKeyDown}
               spellCheck={false}
